@@ -7,14 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClinicBooking.Application.Behaviours
 {
-    /// <summary>
-    /// ValidationBehavior - En vakt som kontrollerar att datan är korrekt INNAN den når handleren.
-    /// Precis som en dörrvakt som kollar:
-    /// - Är alla fält ifyllda?
-    /// - Är datum giltigt?
-    /// Om något är fel → stoppa och skicka tillbaka ett felmeddelande
-    /// Ingen felaktig data kommer igenom till databasen!
-    /// </summary>
+  
     public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
