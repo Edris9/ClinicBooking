@@ -3,21 +3,24 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+
 public class JwtTokenService : IJwtTokenService
 {
-    private readonly string _secretKey;
-    private readonly int _expiryMinutes;
+    private readonly IConfiguration _configuration;
 
-    public JwtTokenService(string secretKey, int expiryMinutes)
+    public JwtTokenService(IConfiguration configuration)
     {
-        _secretKey = secretKey;
-        _expiryMinutes = expiryMinutes;
+        _configuration = configuration;
     }
 
     public string GenerateToken(string userId, string email, string role)
     {
+        var secretKey = _configuration["JwtSettings:SecretKey"];
+        var expiryMinutes = int.Parse(_configuration["JwtSettings:ExpiryMinutes"]);
+
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_secretKey);
+        var key = Encoding.ASCII.GetBytes(secretKey);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
@@ -26,12 +29,11 @@ public class JwtTokenService : IJwtTokenService
                 new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.Role, role)
             }),
-            Expires = DateTime.UtcNow.AddMinutes(_expiryMinutes),
+            Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)
         };
-
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
