@@ -20,4 +20,10 @@ public class AuthController : ControllerBase
         var token = await _mediator.Send(command);
         return Ok(token);
     }
+    [HttpPost("Register")]
+    public async Task<IActionResult> Register(RegisterCommand command)
+    {
+        var token = await _mediator.Send(command);
+        return Ok(token);
+    }
 }
