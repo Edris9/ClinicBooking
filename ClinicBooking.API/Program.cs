@@ -50,6 +50,15 @@ namespace ClinicBooking.API
                         ValidateAudience = false
                     };
                 });
+            builder.Services.AddCors(Options =>
+            {
+                Options.AddPolicy("BlazorClient", policy =>
+                {
+                    policy.WithOrigins("https://localhost:7172") // Replace with your Blazor client URL
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
 
             var app = builder.Build();
 
@@ -58,7 +67,7 @@ namespace ClinicBooking.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseCors("BlazorClient");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

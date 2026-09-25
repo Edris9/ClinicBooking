@@ -1,0 +1,88 @@
+﻿@page "/doctors"
+@inject HttpClient Http
+@using ClinicBooking.Client.Models
+@using System.Net.Http.Json
+
+
+
+<h3>Doctors</h3>
+
+@if(doctors == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Specialty</th>
+				<th>PhoneNumber</th>
+				<th>Email</th>
+				<th>DepartmentId</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var doctor in doctors)
+			{
+				<tr>
+					<td>@doctor.Name</td>
+					<td>@doctor.Specialty</td>
+					<td>@doctor.PhoneNumber</td>
+					<td>@doctor.Email</td>
+					<td>@doctor.DepartmentId</td>
+					<td><button class="btn btn-danger" @onclick="() => DeleteDoctor(doctor.Id)">Delete</button></td>
+				</tr>
+			}
+		</tbody>
+	</table>
+	<EditForm Model="@newDoctor" OnValidSubmit="@CreateDoctor">
+		<DataAnnotationsValidator />
+		<ValidationSummary />
+		<div class="mb-3">
+			<label for="name" class="form-label">Name</label>
+			<InputText id="name" class="form-control" @bind-Value="newDoctor.Name" />
+		</div>
+		<div class="mb-3">
+			<label for="specialty" class="form-label">Specialty</label>
+			<InputText id="specialty" class="form-control" @bind-Value="newDoctor.Specialty" />
+		</div>
+		<div class="mb-3">
+			<label for="phoneNumber" class="form-label">Phone Number</label>
+			<InputText id="phoneNumber" class="form-control" @bind-Value="newDoctor.PhoneNumber" />
+		</div>
+		<div class="mb-3">
+			<label for="email" class="form-label">Email</label>
+			<InputText id="email" class="form-control" @bind-Value="newDoctor.Email" />
+		</div>
+		<div class="mb-3">
+			<label for="departmentId" class="form-label">Department ID</label>
+			<InputNumber id="departmentId" class="form-control" @bind-Value="newDoctor.DepartmentId" />
+		</div>
+		<button type="submit" class="btn btn-primary">Add Doctor</button>
+	</EditForm>
+@code {
+	private List<DoctorDto>? doctors;
+	protected override async Task OnInitializedAsync()
+	{
+
+		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
+	}
+
+	private CreateDoctorDto newDoctor = new();
+	private async Task CreateDoctor()
+	{
+		await Http.PostAsJsonAsync("api/doctors", newDoctor);
+		newDoctor = new();
+		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
+	}
+	private async Task DeleteDoctor(int id)
+	{
+		await Http.DeleteAsync($"api/doctors/{id}");
+		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
+	}
+}
+
+}
