@@ -22,6 +22,7 @@ else
 				<th>Email</th>
 				<th>DepartmentId</th>
 				<th>Actions</th>
+				<th>Uppdate</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,6 +35,8 @@ else
 					<td>@doctor.Email</td>
 					<td>@doctor.DepartmentId</td>
 					<td><button class="btn btn-danger" @onclick="() => DeleteDoctor(doctor.Id)">Delete</button></td>
+					<td><button class="btn btn-primary" @onclick="() => StartEdit(doctor)">Edit</button></td>
+
 				</tr>
 			}
 		</tbody>
@@ -61,7 +64,7 @@ else
 			<label for="departmentId" class="form-label">Department ID</label>
 			<InputNumber id="departmentId" class="form-control" @bind-Value="newDoctor.DepartmentId" />
 		</div>
-		<button type="submit" class="btn btn-primary">Add Doctor</button>
+	<button type="submit" class="btn btn-primary">@(editingId.HasValue ? "Spara ändringar" : "Add Doctor")</button>
 	</EditForm>
 @code {
 	private List<DoctorDto>? doctors;
@@ -74,8 +77,25 @@ else
 	private CreateDoctorDto newDoctor = new();
 	private async Task CreateDoctor()
 	{
-		await Http.PostAsJsonAsync("api/doctors", newDoctor);
-		newDoctor = new();
+		if (editingId.HasValue)
+		{
+			var doctorToUpdate = new DoctorDto
+			{
+				Id = editingId.Value,
+				Name = newDoctor.Name,
+				Specialty = newDoctor.Specialty,
+				PhoneNumber = newDoctor.PhoneNumber,
+				Email = newDoctor.Email,
+				DepartmentId = newDoctor.DepartmentId
+			};
+			await UpdateDoctor(doctorToUpdate);
+			editingId = null;
+		}
+		else
+		{
+			await Http.PostAsJsonAsync("api/doctors", newDoctor);
+		}
+		newDoctor = new CreateDoctorDto();
 		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
 	}
 	private async Task DeleteDoctor(int id)
@@ -83,6 +103,27 @@ else
 		await Http.DeleteAsync($"api/doctors/{id}");
 		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
 	}
-}
 
+	private async Task UpdateDoctor(DoctorDto doctor)
+	{
+		await Http.PutAsJsonAsync($"api/doctors/{doctor.Id}", doctor);
+		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
+	}
+
+	private int? editingId;
+
+	private void StartEdit(DoctorDto doctor)
+	{
+		editingId = doctor.Id;
+		newDoctor = new CreateDoctorDto
+		{
+			Name = doctor.Name,
+			Specialty = doctor.Specialty,
+			PhoneNumber = doctor.PhoneNumber,
+			Email = doctor.Email,
+			DepartmentId = doctor.DepartmentId
+		};
+	}
+
+}
 }
