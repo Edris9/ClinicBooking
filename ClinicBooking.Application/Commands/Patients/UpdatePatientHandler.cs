@@ -22,6 +22,7 @@ public class UpdatePatientHandler : IRequestHandler<UpdatePatientCommand>
         patient.Email = request.Email;
         patient.PhoneNumber = request.PhoneNumber;
         patient.DateOfBirth = request.DateOfBirth;
+        patient.ResponsiblePhysician = request.ResponsiblePhysician;
 
         await _patientRepository.UpdateAsync(patient);
         

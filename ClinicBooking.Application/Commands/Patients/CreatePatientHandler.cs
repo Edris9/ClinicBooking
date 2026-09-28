@@ -18,7 +18,8 @@ public class CreatePatientHandler : IRequestHandler<CreatePatientCommand, int>
             Name = command.Name,
             DateOfBirth = command.DateOfBirth,
             Email = command.Email,
-            PhoneNumber = command.PhoneNumber
+            PhoneNumber = command.PhoneNumber,
+            ResponsiblePhysician = command.ResponsiblePhysician
         };
 
         await _patientRepository.AddAsync(patient);

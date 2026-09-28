@@ -9,5 +9,9 @@ public class Patient
 	public DateTime DateOfBirth { get; set; }
 	public string Email { get; set; }
 	public string PhoneNumber { get; set; }
-	public List<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public int? ResponsiblePhysician { get; set; }
+	public Doctor? ResponsibleDoctor { get; set; }
+    public List<Appointment> Appointments { get; set; } = new List<Appointment>();
+	
+
 }
