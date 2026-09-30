@@ -9,18 +9,142 @@
 
 <h1>Appointments</h1>
 
-@if (appointment == null)
+@if (appointments == null)
 {
     <p><em>Loading...</em></p>
 }
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Patient</th>
+                <th>Läkare</th>
+                <th>Anledning</th>
+                <th>Anteckningar</th>
+                <th>Status</th>
+                <th>Senast ändrad</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in appointments.OrderBy(a => a.ScheduledAt))
+            {
+                <tr>
+                    <td>@a.ScheduledAt.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@(patients?.FirstOrDefault(p => p.Id == a.PatientId)?.Name ?? "Okänd")</td>
+                    <td>@(doctors?.FirstOrDefault(d => d.Id == a.DoctorId)?.Name ?? "Okänd")</td>
+                    <td>@a.Reason</td>
+                    <td>@a.Notes</td>
+                    <td>@a.Status</td>
+                    <td>@(a.UpdatedAt?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "–")</td>
+                    <td>
+                        @if (a.Status != "Cancelled")
+                        {
+                            <button class="btn btn-primary btn-sm" @onclick="() => StartEdit(a)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => CancelAppointment(a.Id)">Avboka</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<EditForm Model="@newAppointment" OnValidSubmit="@SaveAppointment">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="scheduledAt" class="form-label">Datum och tid</label>
+        <InputDate id="scheduledAt" class="form-control" @bind-Value="newAppointment.ScheduledAt" />
+    </div>
+    <div class="mb-3">
+        <label for="patientId" class="form-label">Patient</label>
+        <InputSelect id="patientId" class="form-control" @bind-Value="newAppointment.PatientId">
+            <option value="0" disabled>Välj patient</option>
+            @foreach (var p in patients ?? new List<PatientDto>())
+            {
+                <option value="@p.Id">@p.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <label for="doctorId" class="form-label">Läkare</label>
+        <InputSelect id="doctorId" class="form-control" @bind-Value="newAppointment.DoctorId">
+            <option value="0" disabled>Välj läkare</option>
+            @foreach (var d in doctors ?? new List<DoctorDto>())
+            {
+                <option value="@d.Id">@d.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="mb-3">
+        <label for="reason" class="form-label">Anledning</label>
+        <InputText id="reason" class="form-control" @bind-Value="newAppointment.Reason" />
+    </div>
+    <div class="mb-3">
+        <label for="notes" class="form-label">Anteckningar</label>
+        <InputTextArea id="notes" class="form-control" @bind-Value="newAppointment.Notes" />
+    </div>
+    <button type="submit" class="btn btn-success">Spara</button>
+</EditForm>
 
 
 @code {
     private List<AppointmentDto>? appointments;
+    private List<PatientDto>? patients;
+    private List<DoctorDto>? doctors;
+
+    private AppointmentDto newAppointment = new() { ScheduledAt = DateTime.Today.AddDays(1).AddHours(9) };
+    private int? editingId;
 
     protected override async Task OnInitializedAsync()
     {
+        patients = await Http.GetFromJsonAsync<List<PatientDto>>("api/patients");
+        doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
+        await LoadAppointments();
+    }
+
+    private async Task LoadAppointments()
+    {
         appointments = await Http.GetFromJsonAsync<List<AppointmentDto>>("api/appointments");
     }
-    
+
+    private async Task SaveAppointment()
+    {
+        if (editingId.HasValue)
+        {
+            newAppointment.Id = editingId.Value;
+            await Http.PutAsJsonAsync($"api/appointments/{editingId}", newAppointment);
+            editingId = null;
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/appointments", newAppointment);
+        }
+
+        newAppointment = new() { ScheduledAt = DateTime.Today.AddDays(1).AddHours(9) };
+        await LoadAppointments();
+    }
+
+    private async Task CancelAppointment(int id)
+    {
+        await Http.PutAsync($"api/appointments/{id}/cancel", null);
+        await LoadAppointments();
+    }
+
+    private void StartEdit(AppointmentDto a)
+    {
+        editingId = a.Id;
+        newAppointment = new AppointmentDto
+        {
+            Id = a.Id,
+            PatientId = a.PatientId,
+            DoctorId = a.DoctorId,
+            ScheduledAt = a.ScheduledAt,
+            Reason = a.Reason,
+            Notes = a.Notes
+        };
+    }
 }

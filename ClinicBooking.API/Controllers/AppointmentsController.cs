@@ -29,4 +29,26 @@ public class AppointmentsController : ControllerBase
         var result = await _mediator.Send(new GetAppointmentByIdQuery { Id = id });
         return Ok(result);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _mediator.Send(new GetAllAppointmentsQuery());
+        return Ok(result);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateAppointmentCommand command)
+    {
+        if (id != command.Id) return BadRequest();
+        await _mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpPut("{id}/cancel")]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        await _mediator.Send(new CancelAppointmentCommand { AppointmentId = id });
+        return NoContent();
+    }
 }
