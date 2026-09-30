@@ -7,4 +7,5 @@ public class BookAppointmentCommand : IRequest<int>
     public int DoctorId { get; set; }
     public DateTime ScheduledAt { get; set; }
     public string Reason { get; set; }
+    public string? Notes { get; set; }
 }

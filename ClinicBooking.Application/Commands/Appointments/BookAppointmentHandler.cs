@@ -25,7 +25,9 @@ public class BookAppointmentHandler : IRequestHandler<BookAppointmentCommand, in
             DoctorId = request.DoctorId,
             ScheduledAt = request.ScheduledAt,
             Reason = request.Reason,
-            Status = AppointmentStatus.Scheduled
+            Status = AppointmentStatus.Scheduled,
+            Notes = request.Notes,
+            CreatedAt = DateTime.UtcNow,
         };
         await _appointmentRepository.AddAsync(appointment);
         return appointment.Id;

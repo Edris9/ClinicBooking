@@ -1,0 +1,26 @@
+﻿@page "/Appointments"
+@inject HttpClient Http
+@using ClinicBooking.Client.Models
+@using System.Net.Http.Json
+
+
+
+<PageTitle>Appointments</PageTitle>
+
+<h1>Appointments</h1>
+
+@if (appointment == null)
+{
+    <p><em>Loading...</em></p>
+}
+
+
+@code {
+    private List<AppointmentDto>? appointments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        appointments = await Http.GetFromJsonAsync<List<AppointmentDto>>("api/appointments");
+    }
+    
+}

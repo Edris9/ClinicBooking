@@ -18,6 +18,8 @@ public class UpdateAppointmentHandler : IRequestHandler<UpdateAppointmentCommand
         appointment.Reason = request.Reason;
         appointment.PatientId = request.PatientId;
         appointment.DoctorId = request.DoctorId;
+        appointment.Notes = request.Notes;
+        appointment.UpdatedAt = DateTime.UtcNow;
         await _appointmentRepository.UpdateAsync(appointment);
         return appointment.Id;
     }
