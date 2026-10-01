@@ -1,3 +1,4 @@
+using ClinicBooking.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 public class ClinicDbContext : DbContext
@@ -9,6 +10,7 @@ public class ClinicDbContext : DbContext
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Payment> Payments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,5 +21,15 @@ public class ClinicDbContext : DbContext
             .WithMany()
             .HasForeignKey(p => p.ResponsiblePhysician)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.Property(p => p.Amount).HasPrecision(10, 2);
+
+            entity.HasOne(p => p.Appointment)
+                .WithMany()
+                .HasForeignKey(p => p.AppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

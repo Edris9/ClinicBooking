@@ -34,6 +34,7 @@ namespace ClinicBooking.API
             builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             // JWT
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();

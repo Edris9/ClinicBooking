@@ -1,12 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
-namespace ClinicBooking.Application.Commands.Payment
+
+public class DeletePaymentHandler : IRequestHandler<DeletePaymentCommand>
 {
-    internal class DeletePaymentHandler
+    private readonly IPaymentRepository _paymentRepository;
+    public DeletePaymentHandler(IPaymentRepository paymentRepository)
     {
+        _paymentRepository = paymentRepository;
+    }
+    public async Task Handle(DeletePaymentCommand request, CancellationToken cancellationToken)
+    {
+        var payment = await _paymentRepository.GetByIdAsync(request.Id);
+        if (payment == null)
+            throw new Exception("Payment not found");
+
+        await _paymentRepository.DeleteAsync(request.Id);
     }
 }

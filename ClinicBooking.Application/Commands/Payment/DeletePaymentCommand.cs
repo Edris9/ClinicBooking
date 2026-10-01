@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
-namespace ClinicBooking.Application.Commands.Payment
+public class DeletePaymentCommand : IRequest
 {
-    internal class DeletePaymentCommand
-    {
-    }
+    public int Id { get; set; }
 }

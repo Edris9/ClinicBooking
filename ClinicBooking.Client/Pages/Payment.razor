@@ -1,0 +1,113 @@
+﻿@page "/payments"
+@inject HttpClient Http
+@using ClinicBooking.Client.Models
+@using System.Net.Http.Json
+
+<PageTitle>Payments</PageTitle>
+
+<h1>Payments</h1>
+
+@if (payments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Belopp</th>
+                <th>Anledning</th>
+                <th>Skapad</th>
+                <th>Förfaller</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in payments)
+            {
+                <tr>
+                    <td>@PatientName(payment.AppointmentId)</td>
+                    <td>@payment.Amount.ToString("N2") kr</td>
+                    <td>@payment.Reason</td>
+                    <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                    <td>@payment.DueDate.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                    <td>@payment.Status</td>
+                    <td><button class="btn btn-danger btn-sm" @onclick="() => DeletePayment(payment.Id)">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<EditForm Model="@newPayment" OnValidSubmit="@CreatePayment">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="appointmentId" class="form-label">Bokning</label>
+        <InputSelect id="appointmentId" class="form-select" @bind-Value="newPayment.AppointmentId">
+            <option value="0" disabled>Välj bokning</option>
+            @if (appointments != null)
+            {
+                @foreach (var a in appointments.Where(a => a.Status != "Cancelled"))
+                {
+                    <option value="@a.Id">@a.ScheduledAt.ToString("yyyy-MM-dd HH:mm") – @PatientName(a.Id)</option>
+                }
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label for="amount" class="form-label">Belopp (kr)</label>
+        <InputNumber id="amount" class="form-control" @bind-Value="newPayment.Amount" />
+    </div>
+
+    <div class="mb-3">
+        <label for="reason" class="form-label">Anledning</label>
+        <InputText id="reason" class="form-control" @bind-Value="newPayment.Reason" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Skapa faktura</button>
+</EditForm>
+
+@code {
+    private List<PaymentDto>? payments;
+    private List<AppointmentDto>? appointments;
+    private List<PatientDto>? patients;
+
+    private CreatePaymentDto newPayment = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        patients = await Http.GetFromJsonAsync<List<PatientDto>>("api/patients");
+        appointments = await Http.GetFromJsonAsync<List<AppointmentDto>>("api/appointments");
+        await LoadPayments();
+    }
+
+    private async Task LoadPayments()
+    {
+        payments = await Http.GetFromJsonAsync<List<PaymentDto>>("api/payments");
+    }
+
+    private async Task CreatePayment()
+    {
+        await Http.PostAsJsonAsync("api/payments", newPayment);
+        newPayment = new();
+        await LoadPayments();
+    }
+
+    private async Task DeletePayment(int id)
+    {
+        await Http.DeleteAsync($"api/payments/{id}");
+        await LoadPayments();
+    }
+
+    private string PatientName(int appointmentId)
+    {
+        var appointment = appointments?.FirstOrDefault(a => a.Id == appointmentId);
+        return patients?.FirstOrDefault(p => p.Id == appointment?.PatientId)?.Name ?? "Okänd";
+    }
+}

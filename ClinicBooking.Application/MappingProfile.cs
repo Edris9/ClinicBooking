@@ -1,6 +1,7 @@
 
-using System;
 using AutoMapper;
+using ClinicBooking.Domain.Entities;
+using System;
 
 public class MappingProfile : Profile
 {
@@ -9,5 +10,6 @@ public class MappingProfile : Profile
         CreateMap<Doctor, DoctorDto>();
         CreateMap<Patient, PatientDto>();
         CreateMap<Appointment, AppointmentDto>();
+        CreateMap<Payment, PaymentDto>();
     }
 }
