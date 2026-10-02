@@ -1,4 +1,3 @@
-using ClinicBooking.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 public class ClinicDbContext : DbContext

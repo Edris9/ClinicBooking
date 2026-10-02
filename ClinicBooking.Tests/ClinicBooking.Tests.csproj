@@ -1,24 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+	<!--  ==== Projekt‑referenser ====  -->
+	<ItemGroup>
+		<ProjectReference Include="..\ClinicBooking.Application\ClinicBooking.Application.csproj" />
+		<!-- Om någon av testerna använder entiteter från Domain‑lagret,
+         lägg även till den här: -->
+		<ProjectReference Include="..\ClinicBooking.Domain\ClinicBooking.Domain.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.5.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
-	<PackageReference Include="Moq" Version="4.18.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>
+	<!--  ==== NuGet‑paket för testning ====  -->
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+		<PackageReference Include="xunit" Version="2.*" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
+		<PackageReference Include="Moq" Version="4.*" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.*" />
+	</ItemGroup>
 
 </Project>

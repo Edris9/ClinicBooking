@@ -1,0 +1,36 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [ main, master ]      # kör vid push till huvud‑branch
+  pull_request:
+    branches: [ main, master ]      # kör även för PR‑er
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest          # gratis GitHub‑runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Publish test results (optional – visar i GitHub UI)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"

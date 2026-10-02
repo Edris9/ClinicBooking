@@ -1,0 +1,24 @@
+﻿@page "/payment-confirmed"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components
+
+<h3>Betalningsstatus</h3>
+
+@if (Status?.ToLowerInvariant() == "ok")
+{
+    <p class="text-success fw-bold">
+        ✅ Tack! Din betalning är bekräftad.
+    </p>
+}
+else
+{
+    <p class="text-danger fw-bold">
+        ❌ Länken är ogiltig eller har gått ut. Kontakta kliniken.
+    </p>
+}
+
+@code {
+    // Läses från query‑string: /payment-confirmed?status=ok
+    [SupplyParameterFromQuery]
+    public string? Status { get; set; }
+}

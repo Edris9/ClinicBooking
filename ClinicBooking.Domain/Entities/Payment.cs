@@ -1,13 +1,10 @@
-﻿using ClinicBooking.Domain.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClinicBooking.Domain.Entities
-{
-    public class Payment
+public class Payment
     {
         public int Id { get; set; }
 
@@ -27,4 +24,4 @@ namespace ClinicBooking.Domain.Entities
         public DateTime? VerificationSentAt { get; set; }
         public DateTime? VerifiedAt { get; set; }
     }
-}
+

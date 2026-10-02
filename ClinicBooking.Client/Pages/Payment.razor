@@ -7,6 +7,12 @@
 
 <h1>Payments</h1>
 
+@* NYTT: meddelande *@
+@if (message != null)
+{
+    <div class="alert @(success ? "alert-success" : "alert-danger")">@message</div>
+}
+
 @if (payments == null)
 {
     <p><em>Loading...</em></p>
@@ -35,7 +41,14 @@ else
                     <td>@payment.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")</td>
                     <td>@payment.DueDate.ToLocalTime().ToString("yyyy-MM-dd")</td>
                     <td>@payment.Status</td>
-                    <td><button class="btn btn-danger btn-sm" @onclick="() => DeletePayment(payment.Id)">Delete</button></td>
+                    <td>
+                        @* NYTT: betallänk-knapp *@
+                        @if (payment.Status != "Paid")
+                        {
+                            <button class="btn btn-success btn-sm" @onclick="() => SendLink(payment.Id)">Skicka betallänk</button>
+                        }
+                        <button class="btn btn-danger btn-sm ms-2" @onclick="() => DeletePayment(payment.Id)">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -80,6 +93,10 @@ else
 
     private CreatePaymentDto newPayment = new();
 
+    // NYTT
+    private string? message;
+    private bool success;
+
     protected override async Task OnInitializedAsync()
     {
         patients = await Http.GetFromJsonAsync<List<PatientDto>>("api/patients");
@@ -102,6 +119,15 @@ else
     private async Task DeletePayment(int id)
     {
         await Http.DeleteAsync($"api/payments/{id}");
+        await LoadPayments();
+    }
+
+    // NYTT
+    private async Task SendLink(int id)
+    {
+        var response = await Http.PostAsync($"api/payments/{id}/send-link", null);
+        success = response.IsSuccessStatusCode;
+        message = success ? "Länk skickad till patientens e-post!" : "Kunde inte skicka länken.";
         await LoadPayments();
     }
 

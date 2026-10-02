@@ -63,7 +63,7 @@ namespace ClinicBooking.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("ClinicBooking.Domain.Entities.Payment", b =>
@@ -110,7 +110,7 @@ namespace ClinicBooking.Infrastructure.Migrations
 
                     b.HasIndex("AppointmentId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("Department", b =>
@@ -131,7 +131,7 @@ namespace ClinicBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("Doctor", b =>
@@ -168,7 +168,7 @@ namespace ClinicBooking.Infrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Doctors");
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("Patient", b =>
@@ -201,7 +201,7 @@ namespace ClinicBooking.Infrastructure.Migrations
 
                     b.HasIndex("ResponsiblePhysician");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("User", b =>
@@ -224,7 +224,7 @@ namespace ClinicBooking.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Appointment", b =>

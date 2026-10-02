@@ -1,6 +1,5 @@
 
 using AutoMapper;
-using ClinicBooking.Domain.Entities;
 using System;
 
 public class MappingProfile : Profile

@@ -1,6 +1,4 @@
-﻿using ClinicBooking.Domain.Entities;
-using ClinicBooking.Domain.Enums;
-using MediatR;
+﻿using MediatR;
 
 public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, int>
 {
