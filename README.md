@@ -1,7 +1,6 @@
 # ClinicBooking
 
-
-
+[![CI](https://github.com/Edris9/ClinicBooking/actions/workflows/ci.yml/badge.svg)](https://github.com/Edris9/ClinicBooking/actions/workflows/ci.yml)
 
 # ClinicBooking API
 

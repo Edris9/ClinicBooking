@@ -1,0 +1,38 @@
+﻿services:
+  api:
+    build:
+      context: .
+      dockerfile: ClinicBooking.API/Dockerfile
+    ports:
+      - "7180:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ClinicBookingDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;
+      - JwtSettings__SecretKey=${JWT_SECRET}
+      - JwtSettings__ExpiryMinutes=60
+      - Brevo__ApiKey=${BREVO_API_KEY}
+      - Brevo__SenderEmail=edriskohestani1010@outlook.com
+      - AppSettings__BaseUrl=http://localhost:7180
+      - AppSettings__ClientBaseUrl=http://localhost:7172
+    depends_on:
+      - db
+    restart: on-failure
+
+  client:
+    build:
+      context: .
+      dockerfile: ClinicBooking.Client/Dockerfile
+    ports:
+      - "7172:80"
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssqldata:/var/opt/mssql
+
+volumes:
+  mssqldata:
