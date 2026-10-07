@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicBooking.Tests", "Clin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicBooking.Client", "ClinicBooking.Client\ClinicBooking.Client.csproj", "{A33CA08D-6D9D-4985-B426-3CF1E3B78EB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClinicBooking.Notifications", "ClinicBooking.Notifications\ClinicBooking.Notifications.csproj", "{273FD456-C322-4427-A617-4D43051C21F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{A33CA08D-6D9D-4985-B426-3CF1E3B78EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A33CA08D-6D9D-4985-B426-3CF1E3B78EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A33CA08D-6D9D-4985-B426-3CF1E3B78EB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{273FD456-C322-4427-A617-4D43051C21F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{273FD456-C322-4427-A617-4D43051C21F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{273FD456-C322-4427-A617-4D43051C21F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{273FD456-C322-4427-A617-4D43051C21F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

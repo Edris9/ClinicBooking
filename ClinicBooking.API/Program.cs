@@ -5,7 +5,6 @@ using System.Text;
 using MediatR;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace ClinicBooking.API
 {
     public class Program
@@ -37,7 +36,7 @@ namespace ClinicBooking.API
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-            builder.Services.AddHttpClient<IEmailService, BrevoEmailService>();
+            builder.Services.AddHttpClient<IEmailService, NotificationClient>(client => client.BaseAddress = new Uri(builder.Configuration["Notifications:BaseUrl"]!));
 
             // ---------------------------  JWT -----------------------------------------
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
