@@ -51,7 +51,7 @@ jobs:
           if [[ -n "$DOCKER_USERNAME" && -n "$DOCKER_PASSWORD" ]]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::Docker Hub credentials are not configured; skipping image deployment."
+            echo "::warning::Docker Hub secrets missing; deployment skipped."
             echo "available=false" >> "$GITHUB_OUTPUT"
           fi
 
