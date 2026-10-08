@@ -62,10 +62,9 @@ namespace ClinicBooking.API
             // (…) i ClinicBooking.API/Program.cs, precis innan app.Build()
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("BlazorClient", policy =>
+                options.AddPolicy("AllowFrontend", policy =>
                 {
-                    // Tillåt Blazor‑klienten som kör på http://localhost:7172 (inte https)
-                    policy.WithOrigins("https://localhost:7172", "http://localhost:7172")
+                    policy.WithOrigins("http://13.53.186.35:7172")
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -120,6 +119,7 @@ namespace ClinicBooking.API
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.UseCors("AllowFrontend");
 
             app.Run();
         }

@@ -14,7 +14,7 @@ namespace ClinicBooking.Client
 
             // Läs adressen från appsettings.json (eller env‑variabel)
             var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
-                ?? "https://localhost:7180/";
+                ?? "http://13.53.186.35:7180/";
 
             builder.Services.AddScoped(sp => new HttpClient
             {
