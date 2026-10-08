@@ -9,13 +9,21 @@
       - ConnectionStrings__DefaultConnection=Server=db;Database=ClinicBookingDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;
       - JwtSettings__SecretKey=${JWT_SECRET}
       - JwtSettings__ExpiryMinutes=60
-      - Brevo__ApiKey=${BREVO_API_KEY}
-      - Brevo__SenderEmail=edriskohestani1010@outlook.com
       - AppSettings__BaseUrl=http://localhost:7180
       - AppSettings__ClientBaseUrl=http://localhost:7172
+      - Notifications__BaseUrl=http://notifications:8080
     depends_on:
       - db
+      - notifications
     restart: on-failure
+
+  notifications:
+    build:
+      context: .
+      dockerfile: ClinicBooking.Notifications/Dockerfile
+    environment:
+      - Brevo__ApiKey=${BREVO_API_KEY}
+      - Brevo__SenderEmail=edriskohestani1010@outlook.com
 
   client:
     build:
