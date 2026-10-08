@@ -28,14 +28,13 @@ jobs:
       - name: Run unit tests
         run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
 
-      - name: Publish test results (optional – visar i GitHub UI)
+      - name: Publish test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: "**/TestResults/*.trx"
 
-  # CD-steget (Viktigt: Denna ska ligga på samma indragningsnivå som build-test!)
   deploy-to-dockerhub:
     needs: build-test
     runs-on: ubuntu-latest
