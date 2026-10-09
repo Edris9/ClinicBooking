@@ -1,129 +1,231 @@
-﻿@page "/doctors"
-@inject HttpClient Http
+﻿
+@page "/doctors"
 @using ClinicBooking.Client.Models
 @using System.Net.Http.Json
-
-
+@inject HttpClient Http
 
 <h3>Doctors</h3>
 
-@if(doctors == null)
+@if (doctors == null)
 {
-	<p><em>Loading...</em></p>
+    <p><em>Loading...</em></p>
 }
 else
 {
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Specialty</th>
-				<th>PhoneNumber</th>
-				<th>Email</th>
-				<th>DepartmentId</th>
-				<th>Actions</th>
-				<th>Uppdate</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var doctor in doctors)
-			{
-				<tr>
-					<td>@doctor.Name</td>
-					<td>@doctor.Specialty</td>
-					<td>@doctor.PhoneNumber</td>
-					<td>@doctor.Email</td>
-					<td>@doctor.DepartmentId</td>
-					<td><button class="btn btn-danger" @onclick="() => DeleteDoctor(doctor.Id)">Delete</button></td>
-					<td><button class="btn btn-primary" @onclick="() => StartEdit(doctor)">Edit</button></td>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Specialty</th>
+                <th>Phone Number</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var doctor in doctors)
+            {
+                <tr>
+                    <td>@doctor.Name</td>
+                    <td>@doctor.Specialty</td>
+                    <td>@doctor.PhoneNumber</td>
+                    <td>@doctor.Email</td>
+                    <td>@GetDepartmentName(doctor.DepartmentId)</td>
+                    <td>
+                        <button class="btn btn-danger"
+                                @onclick="() => DeleteDoctor(doctor.Id)">
+                            Delete
+                        </button>
 
-				</tr>
-			}
-		</tbody>
-	</table>
-	<EditForm Model="@newDoctor" OnValidSubmit="@CreateDoctor">
-		<DataAnnotationsValidator />
-		<ValidationSummary />
-		<div class="mb-3">
-			<label for="name" class="form-label">Name</label>
-			<InputText id="name" class="form-control" @bind-Value="newDoctor.Name" />
-		</div>
-		<div class="mb-3">
-			<label for="specialty" class="form-label">Specialty</label>
-			<InputText id="specialty" class="form-control" @bind-Value="newDoctor.Specialty" />
-		</div>
-		<div class="mb-3">
-			<label for="phoneNumber" class="form-label">Phone Number</label>
-			<InputText id="phoneNumber" class="form-control" @bind-Value="newDoctor.PhoneNumber" />
-		</div>
-		<div class="mb-3">
-			<label for="email" class="form-label">Email</label>
-			<InputText id="email" class="form-control" @bind-Value="newDoctor.Email" />
-		</div>
-		<div class="mb-3">
-			<label for="departmentId" class="form-label">Department ID</label>
-			<InputNumber id="departmentId" class="form-control" @bind-Value="newDoctor.DepartmentId" />
-		</div>
-	<button type="submit" class="btn btn-primary">@(editingId.HasValue ? "Spara ändringar" : "Add Doctor")</button>
-	</EditForm>
+                        <button class="btn btn-primary"
+                                @onclick="() => StartEdit(doctor)">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>@(editingId.HasValue ? "Edit Doctor" : "Add Doctor")</h4>
+
+    <EditForm Model="@newDoctor" OnValidSubmit="@CreateDoctor">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <InputText class="form-control" @bind-Value="newDoctor.Name" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Specialty</label>
+            <InputText class="form-control" @bind-Value="newDoctor.Specialty" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <InputText class="form-control" @bind-Value="newDoctor.PhoneNumber" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <InputText class="form-control" @bind-Value="newDoctor.Email" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Department</label>
+            <InputSelect class="form-select"
+                         @bind-Value="newDoctor.DepartmentId">
+                <option value="0">-- Select Department --</option>
+                @foreach (var department in departments)
+                {
+                    <option value="@department.Id">@department.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            @(editingId.HasValue ? "Save Changes" : "Add Doctor")
+        </button>
+
+        @if (editingId.HasValue)
+        {
+            <button type="button" class="btn btn-secondary ms-2"
+                    @onclick="CancelEdit">
+                Cancel
+            </button>
+        }
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger mt-3">@errorMessage</p>
+    }
+}
+
 @code {
-	private List<DoctorDto>? doctors;
-	protected override async Task OnInitializedAsync()
-	{
+    private List<DoctorDto>? doctors;
+    private List<DepartmentDto> departments = new();
+    private CreateDoctorDto newDoctor = new();
+    private int? editingId;
+    private string? errorMessage;
 
-		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadDepartments();
+            doctors = await Http.GetFromJsonAsync<List<DoctorDto>>(
+                "api/doctors") ?? new List<DoctorDto>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Could not load data: {ex.Message}";
+            doctors = new List<DoctorDto>();
+        }
+    }
 
-	private CreateDoctorDto newDoctor = new();
-	private async Task CreateDoctor()
-	{
-		if (editingId.HasValue)
-		{
-			var doctorToUpdate = new DoctorDto
-			{
-				Id = editingId.Value,
-				Name = newDoctor.Name,
-				Specialty = newDoctor.Specialty,
-				PhoneNumber = newDoctor.PhoneNumber,
-				Email = newDoctor.Email,
-				DepartmentId = newDoctor.DepartmentId
-			};
-			await UpdateDoctor(doctorToUpdate);
-			editingId = null;
-		}
-		else
-		{
-			await Http.PostAsJsonAsync("api/doctors", newDoctor);
-		}
-		newDoctor = new CreateDoctorDto();
-		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
-	}
-	private async Task DeleteDoctor(int id)
-	{
-		await Http.DeleteAsync($"api/doctors/{id}");
-		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
-	}
+    private async Task LoadDepartments()
+    {
+        departments = await Http.GetFromJsonAsync<List<DepartmentDto>>(
+            "api/departments") ?? new List<DepartmentDto>();
+    }
 
-	private async Task UpdateDoctor(DoctorDto doctor)
-	{
-		await Http.PutAsJsonAsync($"api/doctors/{doctor.Id}", doctor);
-		doctors = await Http.GetFromJsonAsync<List<DoctorDto>>("api/doctors");
-	}
+    private string GetDepartmentName(int departmentId)
+    {
+        return departments.FirstOrDefault(d => d.Id == departmentId)?.Name
+               ?? $"Unknown (ID: {departmentId})";
+    }
 
-	private int? editingId;
+    private async Task CreateDoctor()
+    {
+        errorMessage = null;
 
-	private void StartEdit(DoctorDto doctor)
-	{
-		editingId = doctor.Id;
-		newDoctor = new CreateDoctorDto
-		{
-			Name = doctor.Name,
-			Specialty = doctor.Specialty,
-			PhoneNumber = doctor.PhoneNumber,
-			Email = doctor.Email,
-			DepartmentId = doctor.DepartmentId
-		};
-	}
+        if (newDoctor.DepartmentId <= 0 ||
+            !departments.Any(d => d.Id == newDoctor.DepartmentId))
+        {
+            errorMessage = "Please select a valid department.";
+            return;
+        }
 
+        try
+        {
+            HttpResponseMessage response;
+
+            if (editingId.HasValue)
+            {
+                response = await Http.PutAsJsonAsync(
+                    $"api/doctors/{editingId.Value}", newDoctor);
+            }
+            else
+            {
+                response = await Http.PostAsJsonAsync(
+                    "api/doctors", newDoctor);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = $"Save failed: {(int)response.StatusCode} " +
+                               response.ReasonPhrase;
+                return;
+            }
+
+            editingId = null;
+            newDoctor = new CreateDoctorDto();
+
+            doctors = await Http.GetFromJsonAsync<List<DoctorDto>>(
+                "api/doctors") ?? new List<DoctorDto>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving doctor: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteDoctor(int id)
+    {
+        errorMessage = null;
+
+        try
+        {
+            var response = await Http.DeleteAsync($"api/doctors/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = $"Delete failed: {(int)response.StatusCode}";
+                return;
+            }
+
+            doctors = await Http.GetFromJsonAsync<List<DoctorDto>>(
+                "api/doctors") ?? new List<DoctorDto>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting doctor: {ex.Message}";
+        }
+    }
+
+    private void StartEdit(DoctorDto doctor)
+    {
+        editingId = doctor.Id;
+
+        newDoctor = new CreateDoctorDto
+        {
+            Name = doctor.Name,
+            Specialty = doctor.Specialty,
+            PhoneNumber = doctor.PhoneNumber,
+            Email = doctor.Email,
+            DepartmentId = doctor.DepartmentId
+        };
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+        newDoctor = new CreateDoctorDto();
+        errorMessage = null;
+    }
 }
-}
+
