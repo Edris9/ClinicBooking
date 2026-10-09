@@ -1,5 +1,9 @@
-﻿services:
+﻿
+services:
   api:
+    build:
+      context: .
+      dockerfile: ClinicBooking.API/Dockerfile
     image: edris99/clinic-booking-api:latest
     ports:
       - "7180:8080"
@@ -16,15 +20,23 @@
     restart: on-failure
 
   notifications:
+    build:
+      context: .
+      dockerfile: ClinicBooking.Notifications/Dockerfile
     image: edris99/clinicbooking-notifications:latest
     environment:
       - Brevo__ApiKey=${BREVO_API_KEY}
       - Brevo__SenderEmail=edriskohestani1010@outlook.com
+    depends_on:
+      - db
 
   client:
+    build:
+      context: .
+      dockerfile: ClinicBooking.Client/Dockerfile
     image: edris99/clinicbooking-client:latest
     ports:
-      - "7172:80"
+      - "7172:8080"
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest

@@ -24,4 +24,6 @@ COPY --from=build /app ./
 # .NET 8 använder port 8080 som standard för okrypterad trafik
 EXPOSE 8080
 
+USER app
 ENTRYPOINT ["dotnet", "ClinicBooking.API.dll"]
+

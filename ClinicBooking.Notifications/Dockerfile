@@ -13,4 +13,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 EXPOSE 8080
+USER app
 ENTRYPOINT ["dotnet", "ClinicBooking.Notifications.dll"]
